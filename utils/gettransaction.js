@@ -5,10 +5,11 @@ const {
 } = require('url');
 const fs = require('fs');
 const get_ticker = require('./tickertools');
+const isToday = require('./tools');
 
 const API = new URL('https://apiwax.3dkrender.com/v2/history/get_actions?');
 const DIR = './csv';
-const BASENAME = 'nft_waxcaner_';
+const BASENAME = 'nft_waxcanner_';
 
 const setValues = (account, date) => {
   return {
@@ -23,7 +24,8 @@ const setValues = (account, date) => {
 const markets = ['atomicmarket', 'neftyblocksd', 'waxarena3dk1'];
 
 const getNftTransactions = async (account, date) => {
-  if (!fs.existsSync(DIR)) {
+
+  if(!fs.existsSync(DIR)) {
     fs.mkdirSync(DIR);
   }
   let nameFile = DIR + '/' + BASENAME + account + '_' + date.substr(0, 10) + '.csv';
@@ -31,6 +33,7 @@ const getNftTransactions = async (account, date) => {
   fs.appendFile(nameFile, headerCSV + '\n', (err) => {
     if (err) throw err;
   });
+
   let values = setValues(account, date);
   let fin = false;
 
@@ -57,6 +60,11 @@ const getNftTransactions = async (account, date) => {
     for (let action of actions) {
       let dataReg = '';
       values['after'] = action['timestamp'];
+  
+      if(isToday(new Date(values['after']))){
+        return true;
+      }
+
       if (action['action'] == 'transfer' && action['contract'] == 'eosio.token') {
 
         // Sales
