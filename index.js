@@ -9,10 +9,7 @@ const {getNftTransactions} = require('./utils/gettransaction');
       Please note that some public APIs may take some time to update transaction data.
  */
 
-// const account = 'your_wax_account';
-// const date = 'start_date';  // sample format -> '2021-11-09T02:09:54.000'
-
-const account = 'tarukcer';
-const date = '2010-11-09T02:09:54.000'
+const account = 'your_wax_account';
+const date = 'start_date';  // sample format -> '2021-11-09T02:09:54.000'
 
 getNftTransactions(account, date);
