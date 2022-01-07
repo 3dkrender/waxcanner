@@ -26,7 +26,7 @@ const getNftTransactions = async (account, date) => {
   if (!fs.existsSync(DIR)) {
     fs.mkdirSync(DIR);
   }
-  let nameFile = DIR + '/' + BASENAME + account + '_' + date.substr(0,10) + '.csv';
+  let nameFile = DIR + '/' + BASENAME + account + '_' + date.substr(0, 10) + '.csv';
   let headerCSV = 'date,from,to,amount,token,amount,token,amount,token,amount,token,amount,token,amount,token,memo,trx';
   fs.appendFile(nameFile, headerCSV + '\n', (err) => {
     if (err) throw err;
@@ -40,9 +40,13 @@ const getNftTransactions = async (account, date) => {
     try {
       let response = await fetch(API + new URLSearchParams(values));
       response = await response.json();
+      if (response['simple_actions'] == undefined) {
+        console.log('Something went wrong when trying to read. Check the format of the input data.');
+        return false;
+      }
       actions = response['simple_actions'];
     } catch (error) {
-      throw error;      
+      throw error;
     }
 
     if (actions.length < values['limit']) {
