@@ -25,7 +25,7 @@ const markets = ['atomicmarket'];
 
 const getNftTransactions = async (account, date) => {
 
-  if(!fs.existsSync(DIR)) {
+  if (!fs.existsSync(DIR)) {
     fs.mkdirSync(DIR);
   }
   let nameFile = DIR + '/' + BASENAME + account + '_' + date.substr(0, 10) + '.csv';
@@ -36,14 +36,14 @@ const getNftTransactions = async (account, date) => {
 
   let values = setValues(account, date);
   let endLoop = false;
-  let checkMemo = ''  // Aux for check duplicate actions
+  let checkMemo = '' // Aux for check duplicate actions
 
   while (!endLoop) {
     let actions = [];
     try {
       let response = await fetch(API + new URLSearchParams(values));
       response = await response.json();
-      if (response['simple_actions'] == undeendLooped) {
+      if (response['simple_actions'] == undefined) {
         console.log('Something went wrong when trying to read. Check the format of the input data.');
         return false;
       }
@@ -58,15 +58,16 @@ const getNftTransactions = async (account, date) => {
     let oldDate = values['after'];
     let contaBlocks = 0;
     for (let action of actions) {
+
       let dataReg = '';
       values['after'] = action['timestamp'];
-  
-      if(isToday(new Date(values['after']))){
+
+      if (isToday(new Date(values['after']))) {
         return true;
       }
 
       // Avoid duplicate actions in transactions
-      if(checkMemo == action['data']['memo']){
+      if (checkMemo == action['data']['memo']) {
         continue;
       } else {
         checkMemo = action['data']['memo'];
