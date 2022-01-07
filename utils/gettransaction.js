@@ -1,0 +1,98 @@
+const fetch = require('node-fetch'); // node only; not needed in browsers
+const {
+  URL,
+  URLSearchParams
+} = require('url');
+const fs = require('fs');
+const get_ticker = require('./tickertools');
+
+const API = new URL('https://apiwax.3dkrender.com/v2/history/get_actions?');
+const DIR = './csv';
+const BASENAME = 'nft_waxcaner_';
+
+const setValues = (account, date) => {
+  return {
+    "limit": '500',
+    'account': account,
+    'sort': 'asc',
+    'after': date,
+    'simple': 'true',
+    'skip': '0'
+  }
+}
+const markets = ['atomicmarket', 'neftyblocksd', 'waxarena3dk1'];
+
+const getNftTransactions = async (account, date) => {
+  if (!fs.existsSync(DIR)) {
+    fs.mkdirSync(DIR);
+  }
+  let nameFile = DIR + '/' + BASENAME + account + '_' + date.substr(0,10) + '.csv';
+  let headerCSV = 'date,from,to,amount,token,amount,token,amount,token,amount,token,amount,token,amount,token,memo,trx';
+  fs.appendFile(nameFile, headerCSV + '\n', (err) => {
+    if (err) throw err;
+  });
+  let values = setValues(account, date);
+  let fin = false;
+
+  while (!fin) {
+    let response = await fetch(API + new URLSearchParams(values));
+    response = await response.json();
+    let actions = response['simple_actions'];
+    if (actions.length < values['limit']) {
+      fin = true;
+    }
+    let oldDate = values['after'];
+    let contaBlocks = 0;
+    for (let action of actions) {
+      let dataReg = '';
+      values['after'] = action['timestamp'];
+      if (action['action'] == 'transfer' && action['contract'] == 'eosio.token') {
+
+        // Sales
+        if (markets.indexOf(action['data']['from']) !== -1) {
+          let usdteur = await get_ticker("USDT-EUR", action['timestamp']);
+          let waxpusdt = await get_ticker("WAXP-USDT", action['timestamp']);
+          dataReg = action['timestamp'] + ',' + action['data']['from'] + ',' + action['data']['to'] + ',' +
+            Number.parseFloat(action['data']['amount']).toFixed(4) + ',WAX' + ',' +
+            Number.parseFloat(waxpusdt.close * action['data']['amount']).toFixed(4) + ',USD' + ',' +
+            Number.parseFloat((waxpusdt.close * action['data']['amount']) * usdteur.close).toFixed(4) + ',EUR,,,,,' + ',' +
+            ',' + action['data']['memo'] + ',' + action['transaction_id'];
+        }
+
+        // buys
+        if (markets.indexOf(action['data']['to']) !== -1) {
+          let usdteur = await get_ticker("USDT-EUR", action['timestamp']);
+          let waxpusdt = await get_ticker("WAXP-USDT", action['timestamp']);
+          dataReg = action['timestamp'] + ',' + action['data']['from'] + ',' + action['data']['to'] + ',,,,,' +
+            Number.parseFloat(action['data']['amount']).toFixed(4) + ',WAX' + ',' +
+            Number.parseFloat(waxpusdt.close * action['data']['amount']).toFixed(4) + ',USD' + ',' +
+            Number.parseFloat((waxpusdt.close * action['data']['amount']) * usdteur.close).toFixed(4) + ',EUR' + ',' +
+            action['data']['memo'] + ',' + action['transaction_id'];
+        }
+
+        if (dataReg != '') {
+          console.log(dataReg);
+          fs.appendFile(nameFile, dataReg + '\n', (err) => {
+            if (err) throw err;
+          });
+        }
+      }
+    }
+
+    // CAUTION! More than values['limit'] actions on same date? Skip them next round
+    if (oldDate == values['after']) {
+      contaBlocks++;
+      values['skip'] = (actions.length * contaBlocks).toString();
+    } else {
+      contaBlocks = 0;
+      values['skip'] = '0';
+    }
+
+    // CAUTION! Take a breath to avoid being banned from public APIs!
+    await new Promise(res => setTimeout(res, 250)); // 4 request/second limit
+  }
+}
+
+module.exports = {
+  getNftTransactions
+}
