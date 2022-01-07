@@ -8,7 +8,14 @@ Please remember to install all needed dependencies beforehand:
 ```
 > npm i
 ```
-You can start the project by: 
+# HOW TO USE
+
+Edit ```index.js``` and set account name and start date
+
+const account = 'your_wax_account';
+const date = 'start_date';  // sample format -> '2021-11-09T02:09:54.000'
+
+Then you can start de project by:
 ```
 > node index.js
 ```
