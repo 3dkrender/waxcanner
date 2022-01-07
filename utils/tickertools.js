@@ -5,6 +5,9 @@ const fetch = require('node-fetch');
  * 
  * This routine obtains all the candles of the indicated date and for the indicated time periods (5 minutes)
  * 
+ * More info: 
+ * https://bittrex.github.io/api/v3#operation--markets--marketSymbol--candles--candleType---candleInterval--historical--year---month---day--get
+ * 
  * @param {*} ticker 
  * @param {*} date 
  * @returns Candle data of the corresponding time slot with the requested date.

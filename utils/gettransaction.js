@@ -35,9 +35,16 @@ const getNftTransactions = async (account, date) => {
   let fin = false;
 
   while (!fin) {
-    let response = await fetch(API + new URLSearchParams(values));
-    response = await response.json();
-    let actions = response['simple_actions'];
+    let actions = [];
+
+    try {
+      let response = await fetch(API + new URLSearchParams(values));
+      response = await response.json();
+      actions = response['simple_actions'];
+    } catch (error) {
+      throw error;      
+    }
+
     if (actions.length < values['limit']) {
       fin = true;
     }
