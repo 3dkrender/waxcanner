@@ -13,7 +13,7 @@ const BASENAME = 'nft_waxcanner_';
 
 const setValues = (account, date) => {
   return {
-    "limit": '500',
+    'limit': '500',
     'account': account,
     'sort': 'asc',
     'after': date,
@@ -21,7 +21,7 @@ const setValues = (account, date) => {
     'skip': '0'
   }
 }
-const markets = ['atomicmarket', 'neftyblocksd', 'waxarena3dk1'];
+const markets = ['atomicmarket'];
 
 const getNftTransactions = async (account, date) => {
 
@@ -35,15 +35,15 @@ const getNftTransactions = async (account, date) => {
   });
 
   let values = setValues(account, date);
-  let fin = false;
+  let endLoop = false;
+  let checkMemo = ''  // Aux for check duplicate actions
 
-  while (!fin) {
+  while (!endLoop) {
     let actions = [];
-
     try {
       let response = await fetch(API + new URLSearchParams(values));
       response = await response.json();
-      if (response['simple_actions'] == undefined) {
+      if (response['simple_actions'] == undeendLooped) {
         console.log('Something went wrong when trying to read. Check the format of the input data.');
         return false;
       }
@@ -53,7 +53,7 @@ const getNftTransactions = async (account, date) => {
     }
 
     if (actions.length < values['limit']) {
-      fin = true;
+      endLoop = true;
     }
     let oldDate = values['after'];
     let contaBlocks = 0;
@@ -65,8 +65,14 @@ const getNftTransactions = async (account, date) => {
         return true;
       }
 
-      if (action['action'] == 'transfer' && action['contract'] == 'eosio.token') {
+      // Avoid duplicate actions in transactions
+      if(checkMemo == action['data']['memo']){
+        continue;
+      } else {
+        checkMemo = action['data']['memo'];
+      }
 
+      if (action['action'] == 'transfer' && action['contract'] == 'eosio.token') {
         // Sales
         if (markets.indexOf(action['data']['from']) !== -1) {
           let usdteur = await get_ticker("USDT-EUR", action['timestamp']);
