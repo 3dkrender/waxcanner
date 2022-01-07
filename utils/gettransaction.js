@@ -81,15 +81,15 @@ const getNftTransactions = async (account, date) => {
           dataReg = action['timestamp'] + ',' + action['data']['from'] + ',' + action['data']['to'] + ',' +
             Number.parseFloat(action['data']['amount']).toFixed(4) + ',WAX' + ',' +
             Number.parseFloat(waxpusdt.close * action['data']['amount']).toFixed(4) + ',USD' + ',' +
-            Number.parseFloat((waxpusdt.close * action['data']['amount']) * usdteur.close).toFixed(4) + ',EUR,,,,,' + ',' +
-            ',' + action['data']['memo'] + ',' + action['transaction_id'];
+            Number.parseFloat((waxpusdt.close * action['data']['amount']) * usdteur.close).toFixed(4) + ',EUR,,,,,,,' + 
+            action['data']['memo'] + ',' + action['transaction_id'];
         }
 
         // buys
         if (markets.indexOf(action['data']['to']) !== -1) {
           let usdteur = await get_ticker("USDT-EUR", action['timestamp']);
           let waxpusdt = await get_ticker("WAXP-USDT", action['timestamp']);
-          dataReg = action['timestamp'] + ',' + action['data']['from'] + ',' + action['data']['to'] + ',,,,,' +
+          dataReg = action['timestamp'] + ',' + action['data']['from'] + ',' + action['data']['to'] + ',,,,,,,' +
             Number.parseFloat(action['data']['amount']).toFixed(4) + ',WAX' + ',' +
             Number.parseFloat(waxpusdt.close * action['data']['amount']).toFixed(4) + ',USD' + ',' +
             Number.parseFloat((waxpusdt.close * action['data']['amount']) * usdteur.close).toFixed(4) + ',EUR' + ',' +
