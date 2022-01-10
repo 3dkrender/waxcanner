@@ -21,7 +21,7 @@ const setValues = (account, date) => {
     'skip': '0'
   }
 }
-const markets = ['atomicmarket'];
+const markets = ['atomicmarket', 'atomicdropsx', 'neftyblocksd'];
 
 const getNftTransactions = async (account, date) => {
 
