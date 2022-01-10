@@ -22,4 +22,4 @@ Then you can start the project by:
 
 # DOCUMENTATION
 
-You can access to full documentation here: (work in progress...)
+You can access to full documentation here: [https://3dkrender.com/en/waxcanner](https://3dkrender.com/en/waxcanner)
